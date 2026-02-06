@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Visor Leaflet Málaga con GeoJSON</title>
+
+  <!-- Leaflet CSS y JS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <!-- Plugin Geocoder para buscar direcciones -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
+  <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
+
+  <style>
+    /* El mapa ocupa toda la ventana del navegador */
+    #map { height: 100vh; }
+  </style>
+</head>
+<body>
+
+<div id="map"></div>
+
+<script>
+  // 1️⃣ Crear el mapa y centrarlo en Málaga
+  var map = L.map('map').setView([36.7213, -4.4214], 13);
+
+  // 2️⃣ Añadir capa base OpenStreetMap
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap'
+  }).addTo(map);
+
+  // 3️⃣ Añadir buscador de direcciones
+  L.Control.geocoder({ defaultMarkGeocode: true }).addTo(map);
+
+  // 4️⃣ Cargar y mostrar GeoJSON
+  fetch('zbe.geojson') // Cambia por tu archivo GeoJSON
+    .then(res => res.json())
+    .then(data => {
+      L.geoJSON(data, {
+        style: {
+          color: 'rgb(0, 0, 255)',       // color de líneas o bordes
+          weight: 2,           // grosor de líneas
+          fillOpacity: 0.3     // relleno semitransparente
+        },
+        onEachFeature: function(feature, layer) {
+          // Popup con la propiedad NOMBRE (o mensaje por defecto)
+          layer.bindPopup(feature.properties.NOMBRE || "Sin nombre");
+        }
+      }).addTo(map);
+    })
+    .catch(err => console.error('Error cargando GeoJSON:', err));
+
+  fetch('zepcen.geojson') // Cambia por tu archivo GeoJSON
+    .then(res => res.json())
+    .then(data => {
+      L.geoJSON(data, {
+        style: {
+          color: 'rgb(220, 59, 44)',       // color de líneas o bordes
+          weight: 2,           // grosor de líneas
+          fillOpacity: 0.3     // relleno semitransparente
+        },
+        onEachFeature: function(feature, layer) {
+          // Popup con la propiedad NOMBRE (o mensaje por defecto)
+          layer.bindPopup(feature.properties.NOMBRE || "Sin nombre");
+        }
+      }).addTo(map);
+    })
+    .catch(err => console.error('Error cargando GeoJSON:', err));
+
+fetch('zepcac.geojson') // Cambia por tu archivo GeoJSON
+    .then(res => res.json())
+    .then(data => {
+      L.geoJSON(data, {
+        style: {
+          color: 'rgb(129, 28, 69)',       // color de líneas o bordes
+          weight: 2,           // grosor de líneas
+          fillOpacity: 0.3     // relleno semitransparente
+        },
+        onEachFeature: function(feature, layer) {
+          // Popup con la propiedad NOMBRE (o mensaje por defecto)
+          layer.bindPopup(feature.properties.NOMBRE || "Sin nombre");
+        }
+      }).addTo(map);
+    })
+    .catch(err => console.error('Error cargando GeoJSON:', err));
+
+fetch('zepsoh.geojson') // Cambia por tu archivo GeoJSON
+    .then(res => res.json())
+    .then(data => {
+      L.geoJSON(data, {
+        style: {
+          color: 'rgb(221, 79, 136)',       // color de líneas o bordes
+          weight: 2,           // grosor de líneas
+          fillOpacity: 0.3     // relleno semitransparente
+        },
+        onEachFeature: function(feature, layer) {
+          // Popup con la propiedad NOMBRE (o mensaje por defecto)
+          layer.bindPopup(feature.properties.NOMBRE || "Sin nombre");
+        }
+      }).addTo(map);
+    })
+    .catch(err => console.error('Error cargando GeoJSON:', err));
+
+
+</script>
+
+</body>
+</html>
