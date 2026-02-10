@@ -52,7 +52,7 @@ var totalCapas = 5;
       }
     });
 
-    capasGeoJSON["Zona de Bajas Emisiones"].addTo(map);
+    capasGeoJSON["zbe"].addTo(map);
     capasCargadas++;
 
     if (capasCargadas === totalCapas) {
@@ -162,4 +162,5 @@ fetch('SARE.geojson')
 
 </body>
 </html>
+
 
