@@ -38,10 +38,11 @@ var capasCargadas = 0;
 var totalCapas = 5;
   
   // 4️⃣ Cargar y mostrar GeoJSON
-  fetch('zbe.geojson')
+// ZBE
+fetch('zbe.geojson')
   .then(res => res.json())
   .then(data => {
-    capasGeoJSON["zbe"] = L.geoJSON(data, {
+    capasGeoJSON["Zona de Bajas Emisiones"] = L.geoJSON(data, {
       style: {
         color: 'rgb(0, 0, 255)',
         weight: 2,
@@ -52,7 +53,7 @@ var totalCapas = 5;
       }
     });
 
-    capasGeoJSON["zbe"].addTo(map);
+    capasGeoJSON["Zona de Bajas Emisiones"].addTo(map);
     capasCargadas++;
 
     if (capasCargadas === totalCapas) {
@@ -66,17 +67,17 @@ var totalCapas = 5;
 fetch('zepcen.geojson')
   .then(res => res.json())
   .then(data => {
-    capasGeoJSON["zepcen"] = L.geoJSON(data, {
+    capasGeoJSON["Zona de Especial Protección Centro"] = L.geoJSON(data, {
       style: {
         color: 'rgb(220, 59, 44)',
         weight: 2,
         fillOpacity: 0.3
       },
       onEachFeature: function(feature, layer) {
-        layer.bindPopup(feature.properties.NOMBRE || "Zona Centro");
+        layer.bindPopup(feature.properties.NOMBRE || "Zona de Especial Protección Centro");
       }
     });
-    capasGeoJSON["zepcen"].addTo(map);
+    capasGeoJSON["Zona de Especial Protección Centro"].addTo(map);
     capasCargadas++;
 
     if (capasCargadas === totalCapas) {
@@ -90,17 +91,17 @@ fetch('zepcen.geojson')
 fetch('zepcac.geojson')
   .then(res => res.json())
   .then(data => {
-    capasGeoJSON["zepcac"] = L.geoJSON(data, {
+    capasGeoJSON["Zona de Especial Protección CAC"] = L.geoJSON(data, {
       style: {
         color: 'rgb(129, 28, 69)',
         weight: 2,
         fillOpacity: 0.3
       },
       onEachFeature: function(feature, layer) {
-        layer.bindPopup(feature.properties.NOMBRE || "Zona CAC");
+        layer.bindPopup(feature.properties.NOMBRE || "Zona de Especial Protección CAC");
       }
     });
-    capasGeoJSON["zepcac"].addTo(map);
+    capasGeoJSON["Zona de Especial Protección CAC"].addTo(map);
     capasCargadas++;
 
     if (capasCargadas === totalCapas) {
@@ -114,17 +115,17 @@ fetch('zepcac.geojson')
 fetch('zepsoh.geojson')
   .then(res => res.json())
   .then(data => {
-    capasGeoJSON["zepsoh"] = L.geoJSON(data, {
+    capasGeoJSON["Zona de Especial Protección SOHO"] = L.geoJSON(data, {
       style: {
         color: 'rgb(221, 79, 136)',
         weight: 2,
         fillOpacity: 0.3
       },
       onEachFeature: function(feature, layer) {
-        layer.bindPopup(feature.properties.NOMBRE || "Zona SOHO");
+        layer.bindPopup(feature.properties.NOMBRE || "Zona de Especial Protección SOHO");
       }
     });
-    capasGeoJSON["zepsoh"].addTo(map);
+    capasGeoJSON["Zona de Especial Protección SOHO"].addTo(map);
     capasCargadas++;
 
     if (capasCargadas === totalCapas) {
@@ -140,7 +141,7 @@ fetch('SARE.geojson')
   .then(data => {
     capasGeoJSON["SARE"] = L.geoJSON(data, {
       style: {
-        color: 'rgb(0, 0, 0)',
+        color: 'rgb(102, 115, 229)',
         weight: 2,
         fillOpacity: 0.3
       },
@@ -161,6 +162,6 @@ fetch('SARE.geojson')
 </script>
 
 </body>
-</html>
+</html> 
 
 
