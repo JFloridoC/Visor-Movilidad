@@ -33,95 +33,132 @@
   // 3️⃣ Añadir buscador de direcciones
   L.Control.geocoder({ defaultMarkGeocode: true }).addTo(map);
 
-  // 4️⃣ Cargar y mostrar GeoJSON
-  fetch('zbe.geojson') // Cambia por tu archivo GeoJSON
-    .then(res => res.json())
-    .then(data => {
-      L.geoJSON(data, {
-        style: {
-          color: 'rgb(0, 0, 255)',       // color de líneas o bordes
-          weight: 2,           // grosor de líneas
-          fillOpacity: 0.3     // relleno semitransparente
-        },
-        onEachFeature: function(feature, layer) {
-          // Popup con la propiedad NOMBRE (o mensaje por defecto)
-          layer.bindPopup(feature.properties.NOMBRE || "Sin nombre");
-        }
-      }).addTo(map);
-    })
-    .catch(err => console.error('Error cargando GeoJSON:', err));
-
-  fetch('zepcen.geojson') // Cambia por tu archivo GeoJSON
-    .then(res => res.json())
-    .then(data => {
-      L.geoJSON(data, {
-        style: {
-          color: 'rgb(220, 59, 44)',       // color de líneas o bordes
-          weight: 2,           // grosor de líneas
-          fillOpacity: 0.3     // relleno semitransparente
-        },
-        onEachFeature: function(feature, layer) {
-          // Popup con la propiedad NOMBRE (o mensaje por defecto)
-          layer.bindPopup(feature.properties.NOMBRE || "Sin nombre");
-        }
-      }).addTo(map);
-    })
-    .catch(err => console.error('Error cargando GeoJSON:', err));
-
-fetch('zepcac.geojson') // Cambia por tu archivo GeoJSON
-    .then(res => res.json())
-    .then(data => {
-      L.geoJSON(data, {
-        style: {
-          color: 'rgb(129, 28, 69)',       // color de líneas o bordes
-          weight: 2,           // grosor de líneas
-          fillOpacity: 0.3     // relleno semitransparente
-        },
-        onEachFeature: function(feature, layer) {
-          // Popup con la propiedad NOMBRE (o mensaje por defecto)
-          layer.bindPopup(feature.properties.NOMBRE || "Sin nombre");
-        }
-      }).addTo(map);
-    })
-    .catch(err => console.error('Error cargando GeoJSON:', err));
-
-fetch('zepsoh.geojson') // Cambia por tu archivo GeoJSON
-    .then(res => res.json())
-    .then(data => {
-      L.geoJSON(data, {
-        style: {
-          color: 'rgb(221, 79, 136)',       // color de líneas o bordes
-          weight: 2,           // grosor de líneas
-          fillOpacity: 0.3     // relleno semitransparente
-        },
-        onEachFeature: function(feature, layer) {
-          // Popup con la propiedad NOMBRE (o mensaje por defecto)
-          layer.bindPopup(feature.properties.NOMBRE || "Sin nombre");
-        }
-      }).addTo(map);
-    })
-    .catch(err => console.error('Error cargando GeoJSON:', err));
-
-fetch('SARE.geojson') // Cambia por tu archivo GeoJSON
-    .then(res => res.json())
-    .then(data => {
-      L.geoJSON(data, {
-        style: {
-          color: 'rgb(221, 79, 136)',       // color de líneas o bordes
-          weight: 2,           // grosor de líneas
-          fillOpacity: 0.3     // relleno semitransparente
-        },
-        onEachFeature: function(feature, layer) {
-          // Popup con la propiedad NOMBRE (o mensaje por defecto)
-          layer.bindPopup(feature.properties.NOMBRE || "SARE");
-        }
-      }).addTo(map);
-    })
-    .catch(err => console.error('Error cargando GeoJSON:', err));
-
+var capasGeoJSON = {}; // Almacén de capas para poder seleccionar o deseleccionar
+var capasCargadas = 0;
+var totalCapas = 5;
   
+  // 4️⃣ Cargar y mostrar GeoJSON
+  fetch('zbe.geojson')
+  .then(res => res.json())
+  .then(data => {
+    capasGeoJSON["zbe"] = L.geoJSON(data, {
+      style: {
+        color: 'rgb(0, 0, 255)',
+        weight: 2,
+        fillOpacity: 0.3
+      },
+      onEachFeature: function(feature, layer) {
+        layer.bindPopup(feature.properties.NOMBRE || "Zona de Bajas Emisiones");
+      }
+    });
+
+    capasGeoJSON["zbe"].addTo(map);
+    capasCargadas++;
+
+    if (capasCargadas === totalCapas) {
+      L.control.layers(null, capasGeoJSON, {
+        collapsed: false
+      }).addTo(map);
+    }
+  });
+
+// ZEP Centro
+fetch('zepcen.geojson')
+  .then(res => res.json())
+  .then(data => {
+    capasGeoJSON["zepcen"] = L.geoJSON(data, {
+      style: {
+        color: 'rgb(220, 59, 44)',
+        weight: 2,
+        fillOpacity: 0.3
+      },
+      onEachFeature: function(feature, layer) {
+        layer.bindPopup(feature.properties.NOMBRE || "Zona Centro");
+      }
+    });
+    capasGeoJSON["zepcen"].addTo(map);
+    capasCargadas++;
+
+    if (capasCargadas === totalCapas) {
+      L.control.layers(null, capasGeoJSON, {
+        collapsed: false
+      }).addTo(map);
+    }
+  });
+
+// ZEP CAC
+fetch('zepcac.geojson')
+  .then(res => res.json())
+  .then(data => {
+    capasGeoJSON["zepcac"] = L.geoJSON(data, {
+      style: {
+        color: 'rgb(129, 28, 69)',
+        weight: 2,
+        fillOpacity: 0.3
+      },
+      onEachFeature: function(feature, layer) {
+        layer.bindPopup(feature.properties.NOMBRE || "Zona CAC");
+      }
+    });
+    capasGeoJSON["zepcac"].addTo(map);
+    capasCargadas++;
+
+    if (capasCargadas === totalCapas) {
+      L.control.layers(null, capasGeoJSON, {
+        collapsed: false
+      }).addTo(map);
+    }
+  });
+
+// ZEP SOHO
+fetch('zepsoh.geojson')
+  .then(res => res.json())
+  .then(data => {
+    capasGeoJSON["zepsoh"] = L.geoJSON(data, {
+      style: {
+        color: 'rgb(221, 79, 136)',
+        weight: 2,
+        fillOpacity: 0.3
+      },
+      onEachFeature: function(feature, layer) {
+        layer.bindPopup(feature.properties.NOMBRE || "Zona SOHO");
+      }
+    });
+    capasGeoJSON["zepsoh"].addTo(map);
+    capasCargadas++;
+
+    if (capasCargadas === totalCapas) {
+      L.control.layers(null, capasGeoJSON, {
+        collapsed: false
+      }).addTo(map);
+    }
+  });
+
+// SARE
+fetch('SARE.geojson')
+  .then(res => res.json())
+  .then(data => {
+    capasGeoJSON["SARE"] = L.geoJSON(data, {
+      style: {
+        color: 'rgb(0, 0, 0)',
+        weight: 2,
+        fillOpacity: 0.3
+      },
+      onEachFeature: function(feature, layer) {
+        layer.bindPopup(feature.properties.NOMBRE || "SARE");
+      }
+    });
+    capasGeoJSON["SARE"].addTo(map);
+    capasCargadas++;
+
+    if (capasCargadas === totalCapas) {
+      L.control.layers(null, capasGeoJSON, {
+        collapsed: false
+      }).addTo(map);
+    }
+  }); 
+
 </script>
 
 </body>
-
 </html>
