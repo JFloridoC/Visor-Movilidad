@@ -33,135 +33,133 @@
   // 3️⃣ Añadir buscador de direcciones
   L.Control.geocoder({ defaultMarkGeocode: true }).addTo(map);
 
-var capasGeoJSON = {}; // Almacén de capas para poder seleccionar o deseleccionar
-var capasCargadas = 0;
-var totalCapas = 5;
-  
+// 👉 Función para etiqueta con simbología
+function etiqueta(color, texto) {
+    return `
+      <span style="display:inline-flex; align-items:center;">
+        <span style="
+          width:14px;
+          height:14px;
+          background:${color};
+          opacity:0.4;
+          border:2px solid ${color};
+          margin-right:6px;">
+        </span>
+        ${texto}
+      </span>
+    `;
+  }
+
+var capasGeoJSON = {};
+
   // 4️⃣ Cargar y mostrar GeoJSON
-// ZBE
-fetch('zbe.geojson')
-  .then(res => res.json())
-  .then(data => {
-    capasGeoJSON["Zona de Bajas Emisiones"] = L.geoJSON(data, {
-      style: {
-        color: 'rgb(0, 0, 255)',
-        weight: 2,
-        fillOpacity: 0.3
-      },
-      onEachFeature: function(feature, layer) {
-        layer.bindPopup(feature.properties.NOMBRE || "Zona de Bajas Emisiones");
-      }
+
+ // ZBE
+  fetch('zbe.geojson')
+    .then(r => r.json())
+    .then(data => {
+      capasGeoJSON[
+        etiqueta('#0000ff', 'Zona de Bajas Emisiones')
+      ] = L.geoJSON(data, {
+        style: {
+          color: '#0000ff',
+          weight: 2,
+          fillOpacity: 0.3
+        },
+        onEachFeature: (f, l) =>
+          l.bindPopup(f.properties?.NOMBRE || 'Zona de Bajas Emisiones')
+      }).addTo(map);
+
+      crearControl();
     });
 
-    capasGeoJSON["Zona de Bajas Emisiones"].addTo(map);
-    capasCargadas++;
-
-    if (capasCargadas === totalCapas) {
-      L.control.layers(null, capasGeoJSON, {
-        collapsed: false
+  // ZEP Centro
+  fetch('zepcen.geojson')
+    .then(r => r.json())
+    .then(data => {
+      capasGeoJSON[
+        etiqueta('#dc3b2c', 'Zona de Especial Protección Centro')
+      ] = L.geoJSON(data, {
+        style: {
+          color: '#dc3b2c',
+          weight: 2,
+          fillOpacity: 0.3
+        },
+        onEachFeature: (f, l) =>
+          l.bindPopup(f.properties?.NOMBRE || 'Zona de Especial Protección Centro')
       }).addTo(map);
-    }
-  });
 
-// ZEP Centro
-fetch('zepcen.geojson')
-  .then(res => res.json())
-  .then(data => {
-    capasGeoJSON["Zona de Especial Protección Centro"] = L.geoJSON(data, {
-      style: {
-        color: 'rgb(220, 59, 44)',
-        weight: 2,
-        fillOpacity: 0.3
-      },
-      onEachFeature: function(feature, layer) {
-        layer.bindPopup(feature.properties.NOMBRE || "Zona de Especial Protección Centro");
-      }
+      crearControl();
     });
-    capasGeoJSON["Zona de Especial Protección Centro"].addTo(map);
-    capasCargadas++;
 
-    if (capasCargadas === totalCapas) {
-      L.control.layers(null, capasGeoJSON, {
-        collapsed: false
+  // ZEP CAC
+  fetch('zepcac.geojson')
+    .then(r => r.json())
+    .then(data => {
+      capasGeoJSON[
+        etiqueta('#811c45', 'Zona de Especial Protección CAC')
+      ] = L.geoJSON(data, {
+        style: {
+          color: '#811c45',
+          weight: 2,
+          fillOpacity: 0.3
+        },
+        onEachFeature: (f, l) =>
+          l.bindPopup(f.properties?.NOMBRE || 'Zona de Especial Protección CAC')
       }).addTo(map);
-    }
-  });
 
-// ZEP CAC
-fetch('zepcac.geojson')
-  .then(res => res.json())
-  .then(data => {
-    capasGeoJSON["Zona de Especial Protección CAC"] = L.geoJSON(data, {
-      style: {
-        color: 'rgb(129, 28, 69)',
-        weight: 2,
-        fillOpacity: 0.3
-      },
-      onEachFeature: function(feature, layer) {
-        layer.bindPopup(feature.properties.NOMBRE || "Zona de Especial Protección CAC");
-      }
+      crearControl();
     });
-    capasGeoJSON["Zona de Especial Protección CAC"].addTo(map);
-    capasCargadas++;
 
-    if (capasCargadas === totalCapas) {
-      L.control.layers(null, capasGeoJSON, {
-        collapsed: false
+  // ZEP SOHO
+  fetch('zepsoh.geojson')
+    .then(r => r.json())
+    .then(data => {
+      capasGeoJSON[
+        etiqueta('#dd4f88', 'Zona de Especial Protección SOHO')
+      ] = L.geoJSON(data, {
+        style: {
+          color: '#dd4f88',
+          weight: 2,
+          fillOpacity: 0.3
+        },
+        onEachFeature: (f, l) =>
+          l.bindPopup(f.properties?.NOMBRE || 'Zona de Especial Protección SOHO')
       }).addTo(map);
-    }
-  });
 
-// ZEP SOHO
-fetch('zepsoh.geojson')
-  .then(res => res.json())
-  .then(data => {
-    capasGeoJSON["Zona de Especial Protección SOHO"] = L.geoJSON(data, {
-      style: {
-        color: 'rgb(221, 79, 136)',
-        weight: 2,
-        fillOpacity: 0.3
-      },
-      onEachFeature: function(feature, layer) {
-        layer.bindPopup(feature.properties.NOMBRE || "Zona de Especial Protección SOHO");
-      }
+      crearControl();
     });
-    capasGeoJSON["Zona de Especial Protección SOHO"].addTo(map);
-    capasCargadas++;
 
-    if (capasCargadas === totalCapas) {
-      L.control.layers(null, capasGeoJSON, {
-        collapsed: false
+  // SARE
+  fetch('SARE.geojson')
+    .then(r => r.json())
+    .then(data => {
+      capasGeoJSON[
+        etiqueta('#6673E5', 'SARE')
+      ] = L.geoJSON(data, {
+        style: {
+          color: '#6673E5',
+          weight: 2,
+          fillOpacity: 0.3
+        },
+        onEachFeature: (f, l) =>
+          l.bindPopup(f.properties?.NOMBRE || 'SARE')
       }).addTo(map);
-    }
-  });
 
-// SARE
-fetch('SARE.geojson')
-  .then(res => res.json())
-  .then(data => {
-    capasGeoJSON["SARE"] = L.geoJSON(data, {
-      style: {
-        color: 'rgb(102, 115, 229)',
-        weight: 2,
-        fillOpacity: 0.3
-      },
-      onEachFeature: function(feature, layer) {
-        layer.bindPopup(feature.properties.NOMBRE || "SARE");
-      }
+      crearControl();
     });
-    capasGeoJSON["SARE"].addTo(map);
-    capasCargadas++;
 
-    if (capasCargadas === totalCapas) {
-      L.control.layers(null, capasGeoJSON, {
-        collapsed: false
-      }).addTo(map);
+  // Control de capas (se rehace cada vez)
+  var controlCapas;
+  function crearControl() {
+    if (controlCapas) {
+      controlCapas.remove();
     }
-  }); 
-
+    controlCapas = L.control.layers(null, capasGeoJSON, {
+      collapsed: false
+    }).addTo(map);
+  }
 </script>
 
 </body>
-</html> 
-
-
+</html>
