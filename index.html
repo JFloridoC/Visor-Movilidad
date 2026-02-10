@@ -25,6 +25,20 @@
   // 1️⃣ Crear el mapa y centrarlo en Málaga
   var map = L.map('map').setView([36.7213, -4.4214], 13);
 
+// Crear panes para jerarquía de capas
+map.createPane('paneZBE');
+map.createPane('paneZEPCEN');
+map.createPane('paneZEPCAC');
+map.createPane('paneZEPSOH');
+map.createPane('paneSARE');
+
+// Jerarquía (quién está por encima de quién)
+map.getPane('paneZBE').style.zIndex = 400;
+map.getPane('paneZEPCEN').style.zIndex = 450;
+map.getPane('paneZEPCAC').style.zIndex = 500;
+map.getPane('paneZEPSOH').style.zIndex = 550;
+map.getPane('paneSARE').style.zIndex = 600;
+
   // 2️⃣ Añadir capa base OpenStreetMap
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '© OpenStreetMap'
@@ -61,17 +75,45 @@ var capasGeoJSON = {};
       capasGeoJSON[
         etiqueta('#0000ff', 'Zona de Bajas Emisiones')
       ] = L.geoJSON(data, {
-        style: {
+        pane: 'paneZBE',
+	    style: {
           color: '#0000ff',
           weight: 2,
           fillOpacity: 0.3
         },
-        onEachFeature: (f, l) =>
-          l.bindPopup(f.properties?.NOMBRE || 'Zona de Bajas Emisiones')
-      }).addTo(map);
+  	  onEachFeature: function (feature, layer) {
 
-      crearControl();
-    });
+ 	  // 👉 Resaltar al pasar el cursor
+        layer.on('mouseover', function () {
+          layer.setStyle({
+            weight: 4,
+            fillOpacity: 0.45
+          });
+          layer.bringToFront();
+        });
+
+        // 👉 Volver al estilo original al salir
+        layer.on('mouseout', function () {
+          layer.setStyle({
+            weight: 2,
+            fillOpacity: 0.3
+          });
+        });
+
+        // 👉 Traer la capa al frente al hacer click
+        layer.on('click', function () {
+          layer.bringToFront();
+        });
+
+        // 👉 Popup correcto
+        layer.bindPopup(
+          feature.properties?.NOMBRE || 'Zona de Bajas Emisiones'
+        );
+      }
+    }).addTo(map);
+
+    crearControl();
+  });       
 
   // ZEP Centro
   fetch('zepcen.geojson')
@@ -80,17 +122,45 @@ var capasGeoJSON = {};
       capasGeoJSON[
         etiqueta('#dc3b2c', 'Zona de Especial Protección Centro')
       ] = L.geoJSON(data, {
+	pane: 'paneZEPCEN',
         style: {
           color: '#dc3b2c',
           weight: 2,
           fillOpacity: 0.3
         },
-        onEachFeature: (f, l) =>
-          l.bindPopup(f.properties?.NOMBRE || 'Zona de Especial Protección Centro')
-      }).addTo(map);
+        onEachFeature: function (feature, layer) {
 
-      crearControl();
-    });
+ 	  // 👉 Resaltar al pasar el cursor
+        layer.on('mouseover', function () {
+          layer.setStyle({
+            weight: 4,
+            fillOpacity: 0.45
+          });
+          layer.bringToFront();
+        });
+
+        // 👉 Volver al estilo original al salir
+        layer.on('mouseout', function () {
+          layer.setStyle({
+            weight: 2,
+            fillOpacity: 0.3
+          });
+        });
+
+        // 👉 Traer la capa al frente al hacer click
+        layer.on('click', function () {
+          layer.bringToFront();
+        });
+
+        // 👉 Popup correcto
+        layer.bindPopup(
+          feature.properties?.NOMBRE || 'Zona de Especial Protección Centro'
+        );
+      }
+    }).addTo(map);
+
+    crearControl();
+  });
 
   // ZEP CAC
   fetch('zepcac.geojson')
@@ -99,17 +169,45 @@ var capasGeoJSON = {};
       capasGeoJSON[
         etiqueta('#811c45', 'Zona de Especial Protección CAC')
       ] = L.geoJSON(data, {
+	pane: 'paneZEPCAC',
         style: {
           color: '#811c45',
           weight: 2,
           fillOpacity: 0.3
         },
-        onEachFeature: (f, l) =>
-          l.bindPopup(f.properties?.NOMBRE || 'Zona de Especial Protección CAC')
-      }).addTo(map);
+         onEachFeature: function (feature, layer) {
 
-      crearControl();
-    });
+ 	  // 👉 Resaltar al pasar el cursor
+        layer.on('mouseover', function () {
+          layer.setStyle({
+            weight: 4,
+            fillOpacity: 0.45
+          });
+          layer.bringToFront();
+        });
+
+        // 👉 Volver al estilo original al salir
+        layer.on('mouseout', function () {
+          layer.setStyle({
+            weight: 2,
+            fillOpacity: 0.3
+          });
+        });
+
+        // 👉 Traer la capa al frente al hacer click
+        layer.on('click', function () {
+          layer.bringToFront();
+        });
+
+        // 👉 Popup correcto
+        layer.bindPopup(
+          feature.properties?.NOMBRE || 'Zona de Especial Protección CAC'
+        );
+      }
+    }).addTo(map);
+
+    crearControl();
+  });
 
   // ZEP SOHO
   fetch('zepsoh.geojson')
@@ -118,17 +216,45 @@ var capasGeoJSON = {};
       capasGeoJSON[
         etiqueta('#dd4f88', 'Zona de Especial Protección SOHO')
       ] = L.geoJSON(data, {
+	pane: 'paneZEPSOH',
         style: {
           color: '#dd4f88',
           weight: 2,
           fillOpacity: 0.3
         },
-        onEachFeature: (f, l) =>
-          l.bindPopup(f.properties?.NOMBRE || 'Zona de Especial Protección SOHO')
-      }).addTo(map);
+         onEachFeature: function (feature, layer) {
 
-      crearControl();
-    });
+ 	  // 👉 Resaltar al pasar el cursor
+        layer.on('mouseover', function () {
+          layer.setStyle({
+            weight: 4,
+            fillOpacity: 0.45
+          });
+          layer.bringToFront();
+        });
+
+        // 👉 Volver al estilo original al salir
+        layer.on('mouseout', function () {
+          layer.setStyle({
+            weight: 2,
+            fillOpacity: 0.3
+          });
+        });
+
+        // 👉 Traer la capa al frente al hacer click
+        layer.on('click', function () {
+          layer.bringToFront();
+        });
+
+        // 👉 Popup correcto
+        layer.bindPopup(
+          feature.properties?.NOMBRE || 'Zona de Especial Protección SOHO'
+        );
+      }
+    }).addTo(map);
+
+    crearControl();
+  });
 
   // SARE
   fetch('SARE.geojson')
@@ -137,17 +263,45 @@ var capasGeoJSON = {};
       capasGeoJSON[
         etiqueta('#6673E5', 'SARE')
       ] = L.geoJSON(data, {
+	pane: 'paneSARE',
         style: {
           color: '#6673E5',
           weight: 2,
           fillOpacity: 0.3
         },
-        onEachFeature: (f, l) =>
-          l.bindPopup(f.properties?.NOMBRE || 'SARE')
-      }).addTo(map);
+         onEachFeature: function (feature, layer) {
 
-      crearControl();
-    });
+ 	  // 👉 Resaltar al pasar el cursor
+        layer.on('mouseover', function () {
+          layer.setStyle({
+            weight: 4,
+            fillOpacity: 0.45
+          });
+          layer.bringToFront();
+        });
+
+        // 👉 Volver al estilo original al salir
+        layer.on('mouseout', function () {
+          layer.setStyle({
+            weight: 2,
+            fillOpacity: 0.3
+          });
+        });
+
+        // 👉 Traer la capa al frente al hacer click
+        layer.on('click', function () {
+          layer.bringToFront();
+        });
+
+        // 👉 Popup correcto
+        layer.bindPopup(
+          feature.properties?.NOMBRE || 'Zona de Especial Protección CAC'
+        );
+      }
+    }).addTo(map);
+
+    crearControl();
+  });
 
   // Control de capas (se rehace cada vez)
   var controlCapas;
@@ -162,4 +316,4 @@ var capasGeoJSON = {};
 </script>
 
 </body>
-</html>
+</html>  
