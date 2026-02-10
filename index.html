@@ -102,8 +102,26 @@ fetch('zepsoh.geojson') // Cambia por tu archivo GeoJSON
     })
     .catch(err => console.error('Error cargando GeoJSON:', err));
 
+fetch('SARE.geojson') // Cambia por tu archivo GeoJSON
+    .then(res => res.json())
+    .then(data => {
+      L.geoJSON(data, {
+        style: {
+          color: 'rgb(221, 79, 136)',       // color de líneas o bordes
+          weight: 2,           // grosor de líneas
+          fillOpacity: 0.3     // relleno semitransparente
+        },
+        onEachFeature: function(feature, layer) {
+          // Popup con la propiedad NOMBRE (o mensaje por defecto)
+          layer.bindPopup(feature.properties.NOMBRE || "SARE");
+        }
+      }).addTo(map);
+    })
+    .catch(err => console.error('Error cargando GeoJSON:', err));
 
+  
 </script>
 
 </body>
+
 </html>
