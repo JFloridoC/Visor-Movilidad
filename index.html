@@ -303,17 +303,28 @@ var capasGeoJSON = {};
     crearControl();
   });
 
-  // Control de capas (se rehace cada vez)
-  var controlCapas;
-  function crearControl() {
-    if (controlCapas) {
-      controlCapas.remove();
-    }
-    controlCapas = L.control.layers(null, capasGeoJSON, {
-      collapsed: false
-    }).addTo(map);
+// Control de capas (se rehace cada vez)
+var controlCapas;
+
+function crearControl() {
+
+  if (controlCapas) {
+    controlCapas.remove();
   }
+
+  var capasBase = {
+    "🗺️ Mapa": osm,
+    "🛰️ Satélite": satelite
+  };
+
+  controlCapas = L.control.layers(capasBase, capasGeoJSON, {
+    collapsed: false
+  }).addTo(map);
+}
+
+
 </script>
 
 </body>
 </html>  
+
