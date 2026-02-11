@@ -40,9 +40,18 @@ map.getPane('paneZEPSOH').style.zIndex = 550;
 map.getPane('paneSARE').style.zIndex = 600;
 
   // 2️⃣ Añadir capa base OpenStreetMap
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '© OpenStreetMap'
-  }).addTo(map);
+var osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution: '© OpenStreetMap contributors'
+});
+
+var satelite = L.tileLayer(
+  'https://server.arcgisonline.com/ArcGIS/rest/services/' +
+  'World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+  attribution: 'Tiles © Esri'
+});
+
+// Añadir OSM por defecto
+osm.addTo(map); 
 
   // 3️⃣ Añadir buscador de direcciones
   L.Control.geocoder({ defaultMarkGeocode: true }).addTo(map);
@@ -327,4 +336,5 @@ function crearControl() {
 
 </body>
 </html>  
+
 
