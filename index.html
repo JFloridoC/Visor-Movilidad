@@ -53,6 +53,19 @@ var satelite = L.tileLayer(
 // Añadir OSM por defecto
 osm.addTo(map); 
 
+// 🔹 Control SOLO mapas base (abajo izquierda)
+L.control.layers(
+  {
+    "🗺️ Mapa": osm,
+    "🛰️ Satélite": satelite
+  },
+  null,
+  {
+    collapsed: true,
+    position: 'bottomleft'
+  }
+).addTo(map)
+  
   // 3️⃣ Añadir buscador de direcciones
   L.Control.geocoder({ defaultMarkGeocode: true }).addTo(map);
 
@@ -156,6 +169,7 @@ var capasGeoJSON = {};
 
 </body>
 </html>  
+
 
 
 
