@@ -31,6 +31,7 @@ map.createPane('paneZEPCEN');
 map.createPane('paneZEPCAC');
 map.createPane('paneZEPSOH');
 map.createPane('paneSARE');
+map.createPane('paneTMMALAGA');
 
 // Jerarquía (quién está por encima de quién)
 map.getPane('paneZBE').style.zIndex = 400;
@@ -38,8 +39,10 @@ map.getPane('paneZEPCEN').style.zIndex = 450;
 map.getPane('paneZEPCAC').style.zIndex = 500;
 map.getPane('paneZEPSOH').style.zIndex = 550;
 map.getPane('paneSARE').style.zIndex = 600;
+map.getPane('paneTMMALAGA').style.zIndex = 650;
 
-  // 2️⃣ Añadir capa base OpenStreetMap
+  // 2️⃣ Capas base
+
 var osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
   attribution: '© OpenStreetMap contributors'
 });
@@ -51,7 +54,7 @@ var satelite = L.tileLayer(
 });
 
 // Añadir OSM por defecto
-osm.addTo(map); 
+osm.addTo(map);
 
 // 🔹 Control SOLO mapas base (abajo izquierda)
 L.control.layers(
@@ -64,8 +67,8 @@ L.control.layers(
     collapsed: true,
     position: 'bottomleft'
   }
-).addTo(map)
-  
+).addTo(map);
+
   // 3️⃣ Añadir buscador de direcciones
   L.Control.geocoder({ defaultMarkGeocode: true }).addTo(map);
 
@@ -94,8 +97,9 @@ var capasGeoJSON = {};
     fetch('zepcen.geojson').then(r => r.json()),
     fetch('zepcac.geojson').then(r => r.json()),
     fetch('zepsoh.geojson').then(r => r.json()),
-    fetch('SARE.geojson').then(r => r.json())
-  ]).then(([zbe, zepcen, zepcac, zepsoh, sare]) => {
+    fetch('SARE.geojson').then(r => r.json()),
+  fetch('tmmalaga.geojson').then(r => r.json())
+  ]).then(([zbe, zepcen, zepcac, zepsoh, sare, tmmalaga]) => {
 
  // Función para aplicar los eventos de cada capa
     function aplicarEventos(layer, nombre) {
@@ -151,6 +155,14 @@ var capasGeoJSON = {};
     }).addTo(map);
     capasGeoJSON[etiqueta('#6673E5', 'SARE')] = capaSARE;
 
+    // TM MALAGA
+    var capaTMMALAGA = L.geoJSON(tmmalaga, {
+      pane: 'paneTMMALAGA',
+      style: { color: '#6673E5', weight: 2, fillOpacity: 0.3 },
+      onEachFeature: (f, l) => aplicarEventos(l, f.properties?.NOMBRE || 'TMMALAGA')
+    }).addTo(map);
+    capasGeoJSON[etiqueta('#6673E5', 'TMMALAGA')] = capaTMMALAGA
+
     // 🔹 Crear control de capas GeoJSON independiente (topright)
     L.control.layers(null, capasGeoJSON, {
       collapsed: false,
@@ -163,13 +175,3 @@ var capasGeoJSON = {};
 
 </body>
 </html>
-
-
-</script>
-
-</body>
-</html>  
-
-
-
-
