@@ -34,12 +34,12 @@ map.createPane('paneSARE');
 map.createPane('paneTMMALA');
 
 // Jerarquía (quién está por encima de quién)
+map.getPane('paneTMMALA').style.zIndex = 350;
 map.getPane('paneZBE').style.zIndex = 400;
 map.getPane('paneZEPCEN').style.zIndex = 450;
 map.getPane('paneZEPCAC').style.zIndex = 500;
 map.getPane('paneZEPSOH').style.zIndex = 550;
 map.getPane('paneSARE').style.zIndex = 600;
-map.getPane('paneTMMALA').style.zIndex = 650;
 
   // 2️⃣ Capas base
 
@@ -114,8 +114,7 @@ var capasGeoJSON = {};
       layer.bindPopup(nombre);
     }
 
- // ZBE
- 
+    // ZBE
     var capaZBE = L.geoJSON(zbe, {
       pane: 'paneZBE',
       style: { color: '#0000ff', weight: 2, fillOpacity: 0.3 },
@@ -158,8 +157,14 @@ var capasGeoJSON = {};
     // TMMALA
     var capaTMMALA = L.geoJSON(tmmala, { 
       pane: 'paneTMMALA', 
-      style: { color: '#c25e6d', weight: 2, fillOpacity: 0.2 }, 
-      onEachFeature: (f, l) => aplicarEventos(l, f.properties?.NOMBRE || 'Término Municipal de Málaga') 
+      style: { 
+      color: '#c25e6d', 
+      weight: 2, 
+      fillOpacity: 0.2 
+  },
+  onEachFeature: function (f, layer) {
+    layer.bindPopup(f.properties?.NOMBRE || 'Término Municipal de Málaga');
+  }
      }).addTo(map); 
      capasGeoJSON[etiqueta('#c25e6d', 'Término Municipal de Málaga')] = capaTMMALA;   
 
@@ -174,9 +179,4 @@ var capasGeoJSON = {};
 </script>
 
 </body>
-</html> 
- 
-
-
-
-
+</html>
