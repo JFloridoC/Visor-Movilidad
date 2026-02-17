@@ -23,7 +23,7 @@
 
 <script>
  // 1️⃣ Crear el mapa y centrarlo en Málaga
-var map = L.map('map').setView([36.7213, -4.4214], 13);
+  var map = L.map('map').setView([36.7213, -4.4214], 13);
 
 // Crear panes para jerarquía de capas
 map.createPane('paneZBE');
@@ -31,6 +31,7 @@ map.createPane('paneZEPCEN');
 map.createPane('paneZEPCAC');
 map.createPane('paneZEPSOH');
 map.createPane('paneSARE');
+map.createPane('paneTMMALA');
 
 // Jerarquía (quién está por encima de quién)
 map.getPane('paneZBE').style.zIndex = 400;
@@ -38,6 +39,7 @@ map.getPane('paneZEPCEN').style.zIndex = 450;
 map.getPane('paneZEPCAC').style.zIndex = 500;
 map.getPane('paneZEPSOH').style.zIndex = 550;
 map.getPane('paneSARE').style.zIndex = 600;
+map.getPane('paneTMMALA').style.zIndex = 650;
 
   // 2️⃣ Capas base
 
@@ -96,7 +98,8 @@ var capasGeoJSON = {};
     fetch('zepcac.geojson').then(r => r.json()),
     fetch('zepsoh.geojson').then(r => r.json()),
     fetch('SARE.geojson').then(r => r.json()),
-  ]).then(([zbe, zepcen, zepcac, zepsoh, sare]) => {
+  fetch('tmmala.geojson').then(r => r.json()),
+  ]).then(([zbe, zepcen, zepcac, zepsoh, sare, tmmala]) => {
 
  // Función para aplicar los eventos de cada capa
     function aplicarEventos(layer, nombre) {
@@ -152,6 +155,14 @@ var capasGeoJSON = {};
     }).addTo(map);
     capasGeoJSON[etiqueta('#6673E5', 'SARE')] = capaSARE;
 
+    // TMMALA
+    var capaTMMALA = L.geoJSON(tmmala, {
+      pane: 'paneTMMALA',
+      style: { color: '#0000ff', weight: 2, fillOpacity: 0.3 },
+      onEachFeature: (f, l) => aplicarEventos(l, f.properties?.NOMBRE || 'Término Municipal de Málaga')
+    }).addTo(map);
+    capasGeoJSON[etiqueta('#0000ff', 'Término Municipal de Málaga')] = capaTMMALA;
+
     // 🔹 Crear control de capas GeoJSON independiente (topright)
     L.control.layers(null, capasGeoJSON, {
       collapsed: false,
@@ -166,5 +177,6 @@ var capasGeoJSON = {};
 </html>
 
  
+
 
 
