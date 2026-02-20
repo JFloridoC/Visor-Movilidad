@@ -44,13 +44,15 @@ map.getPane('paneSARE').style.zIndex = 600;
   // 2️⃣ Capas base
 
 var osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-  attribution: '© OpenStreetMap contributors'
+  attribution: '© OpenStreetMap contributors',
+  maxZoom: 20
 });
 
 var satelite = L.tileLayer(
   'https://server.arcgisonline.com/ArcGIS/rest/services/' +
   'World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-  attribution: 'Tiles © Esri'
+  attribution: 'Tiles © Esri',
+  maxZoom: 20
 });
 
 // Añadir OSM por defecto
@@ -180,3 +182,4 @@ var capasGeoJSON = {};
 
 </body>
 </html>
+
