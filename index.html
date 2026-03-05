@@ -29,7 +29,7 @@
   [
     'paneZBE','paneZEPCEN','paneZEPCAC','paneZEPSOH',
     'paneSARE','paneTMMALA','paneCAMACEN',
-    'paneITINERARIOS','paneBARRIOS','paneDISTRITOS', 'paneCALLESLIM', 'paneMEDICAL', 'paneCARRILBUS', 'paneCARRILBICI', 'paneCARRICICLA', 'paneRESERMOTO'
+    'paneITINERARIOS','paneBARRIOS','paneDISTRITOS', 'paneCALLESLIM', 'paneMEDICAL', 'paneCARRILBUS', 'paneCARRILBICI', 'paneCARRICICLA', 'paneRESERMOTO', 'paneCARGADESC', 'panePMR', 'paneTAXI'
   ].forEach(p => map.createPane(p));
 
   // Jerarquía
@@ -45,9 +45,12 @@
   map.getPane('paneCALLESLIM').style.zIndex = 600;
   map.getPane('paneCAMACEN').style.zIndex = 600;
   map.getPane('paneMEDICAL').style.zIndex = 600;
-  map.getPane('paneCARRILBUS').style.zIndex = 600
+  map.getPane('paneCARRILBUS').style.zIndex = 600;
   map.getPane('paneCARRILBICI').style.zIndex = 600;
   map.getPane('paneRESERMOTO').style.zIndex = 600;
+  map.getPane('paneCARGADESC').style.zIndex = 600;
+  map.getPane('panePMR').style.zIndex = 600;
+  map.getPane('paneTAXI').style.zIndex = 600;
   map.getPane('paneITINERARIOS').style.zIndex = 650;
 
   // Capas base
@@ -110,6 +113,18 @@
     </span>`;
   }
 
+  function nombreConLinea(nombre,color,grosor=3){
+    return `<span style="display:inline-flex;align-items:center;">
+    <span style="width:18px;height:0;border-top:${grosor}px solid ${color};margin-right:6px;"></span>${nombre}
+  </span>`;
+  }
+
+  function nombreConPunto(nombre,color,tamano=10){
+     return `<span style="display:inline-flex;align-items:center;">
+     <span style="width:${tamano}px;height:${tamano}px;background:${color};border-radius:50%;display:inline-block;margin-right:6px;border:2px solid white;box-shadow:0 0 0 1px ${color};"></span>${nombre}
+  </span>`;
+  }
+
   // Cargar GeoJSON
   
   Promise.all([
@@ -136,8 +151,11 @@
     fetch('carrilbici.geojson').then(r=>r.json()),
     fetch('carricicla.geojson').then(r=>r.json()), 
     fetch('resermoto.geojson').then(r=>r.json()),
+    fetch('cargadesc.geojson').then(r=>r.json()),
+    fetch('pmr.geojson').then(r=>r.json()),
+    fetch('taxi.geojson').then(r=>r.json()),
 
-  ]).then(([zbe,zepcen,zepcac,zepsoh,sare,tmmala,camacen,barrios,distrimun,it1,it2,it3,it4,it5,it6,it7,it8, calleslim, medical, carrilbus, carrilbici, carricicla, resermoto])=>{
+  ]).then(([zbe,zepcen,zepcac,zepsoh,sare,tmmala,camacen,barrios,distrimun,it1,it2,it3,it4,it5,it6,it7,it8, calleslim, medical, carrilbus, carrilbici, carricicla, resermoto, cargadesc, pmr, taxi])=>{
 
     // Capas principales
 
@@ -154,10 +172,13 @@
     var capaMEDICAL = L.geoJSON(medical,{pane:'paneMEDICAL',style:{color:'#8a6c26',weight:2,fillOpacity:1},onEachFeature:(f,l)=>aplicarEventos(l,f.properties?.NºORDEN)});
     var capaCARRILBUS=L.geoJSON(carrilbus,{pane:'paneCARRILBUS',style:{color:'#6673E5',weight:3,fillOpacity:1},onEachFeature:(f,l)=>aplicarEventos(l,f.properties.NOMBRE)});
     var capaCARRILBICI = L.geoJSON(carrilbici,{pane:'paneCARRILBICI',style:{color:'#ee1717',weight:3,fillOpacity:1},onEachFeature:(f,l)=>aplicarEventos(l, "Carril bici")});
-    var capaCARRICICLA=L.geoJSON(carricicla,{pane:'paneCARRICICLA',style:{color:'#7f3e7f',weight:3,fillOpacity:1},onEachFeature:(f,l)=>aplicarEventos(l,"Carril ciclable")});
-    var capaRESERMOTO=L.geoJSON(resermoto,{pane:'paneRESERMOTO',style:{color:'#7f3e7f',weight:3,fillOpacity:1},onEachFeature:(f,l)=>aplicarEventos(l,"Plazas: "+f.properties.PLAZAS)});
-
-    function crearItinerario(data,color,nombre,urlFoto,descripcion=''){
+    var capaCARRICICLA=L.geoJSON(carricicla,{pane:'paneCARRICICLA',style:{color:'#348e5a',weight:3,fillOpacity:1},onEachFeature:(f,l)=>aplicarEventos(l,"Carril ciclable")});
+    var capaRESERMOTO=L.geoJSON(resermoto,{pane:'paneRESERMOTO',style:{color:'#428183',weight:5,fillOpacity:1},onEachFeature:(f,l)=>aplicarEventos(l,"Plazas: "+f.properties.PLAZAS)});
+    var capaCARGADESC=L.geoJSON(cargadesc,{pane:'paneCARGADESC',style:{color:'#f5b62d',weight:5,fillOpacity:1},onEachFeature:(f,l)=>aplicarEventos(l,"ID: "+f.properties.ID)});
+    var capaPMR=L.geoJSON(pmr,{pane:'panePMR',style:{color:'#2f9ed5',weight:5,fillOpacity:1},onEachFeature:(f,l)=>aplicarEventos(l,"ID: "+f.properties.ID)});
+    var capaTAXI=L.geoJSON(taxi,{pane:'paneTAXI',style:{color:'#d52f95',weight:5,fillOpacity:1},onEachFeature:(f,l)=>aplicarEventos(l,"ID: "+f.properties.ID)});
+    
+  function crearItinerario(data,color,nombre,urlFoto,descripcion=''){
       return L.geoJSON(data,{
         pane:'paneITINERARIOS',
         style:{color:color,weight:2},
@@ -176,62 +197,98 @@
       crearItinerario(it8,'#ff7f00','Itinerario 8','img/Itinerario_8.jpeg', 'Sebastián Souvirón, Olozaga, Sagasta')
     ];
 
-    var overlayMaps={
 
-       // ZBE (antes de los subgrupos)
-      [nombreConSimbologia('Zona de Bajas Emisiones (ZBE)','#0000ff')]: capaZBE,
+// Configurar grupos (SIN grupo propio para ZBE)
+const grupos=[
+  {titulo:'ZONAS DE PROTECCIÓN', capas:[
+    {nombre:nombreConSimbologia('Zona de Especial Protección (ZEP) Centro','#dc3b2c'), capa:capaZEPCEN},
+    {nombre:nombreConSimbologia('Zona de Especial Protección (ZEP) CAC','#811c45'), capa:capaZEPCAC},
+    {nombre:nombreConSimbologia('Zona de Especial Protección (ZEP) SOHO','#dd4f88'), capa:capaZEPSOH}
+  ]},
+  {titulo:'CENTRO HISTÓRICO', capas:[
+    {nombre:nombreConPunto('Control de acceso','#cc0825'), capa:capaCAMACEN},
+    {nombre:nombreConLinea('Itinerarios','#ff7f00'), capa:L.layerGroup(itinerarios)}
+  ]},
+  {titulo:'MOVILIDAD', capas:[
+    {nombre:nombreConLinea('Calles 30','#8a6c26'), capa:capaCALLESLIM},
+    {nombre:nombreConLinea('Carril bici','#ee1717'), capa:capaCARRILBICI},
+    {nombre:nombreConLinea('Carril ciclable','#348e5a'), capa:capaCARRICICLA},
+    {nombre:nombreConLinea('Carril bus','#6673E5'), capa:capaCARRILBUS},
+    {nombre:nombreConPunto('Medidas de calmado','#8a6c26'), capa:capaMEDICAL}
+  ]},
+  {titulo:'RESERVAS', capas:[
+    {nombre:nombreConLinea('SARE','#335ca2'), capa:capaSARE},
+    {nombre:nombreConLinea('Moto','#428183'), capa:capaRESERMOTO},
+    {nombre:nombreConLinea('Carga y descarga','#f5b62d'), capa:capaCARGADESC}, 
+    {nombre:nombreConLinea('PMR','#2f9ed5'), capa:capaPMR},
+    {nombre:nombreConLinea('Taxi','#d52f95'), capa:capaTAXI}
+  ]},
+  {titulo:'LÍMITES', capas:[
+    {nombre:nombreConSimbologia('Barrios','#555555'), capa:capaBARRIOS},
+    {nombre:nombreConSimbologia('Distritos','#555555'), capa:capaDISTRITOS},
+    {nombre:nombreConSimbologia('Término municipal de Málaga','#c25e6d'), capa:capaTMMALA}
+  ]}
+];
 
-       // --- ZONAS DE PROTECCIÓN ---
-      "<div style='font-weight:bold;margin-top:6px;'>ZONAS DE PROTECCIÓN</div>": L.layerGroup([]),
-      [nombreConSimbologia('Zona de Especial Protección (ZEP) Centro','#dc3b2c')]: capaZEPCEN,
-      [nombreConSimbologia('Zona de Especial Protección (ZEP) CAC','#811c45')]: capaZEPCAC,
-      [nombreConSimbologia('Zona de Especial Protección (ZEP) SOHO','#dd4f88')]: capaZEPSOH,
+  // Construir overlayMaps en orden
+    var overlayMapsOrdered={};
 
-      // --- CENTRO HISTÓRICO ---
-      "<div style='font-weight:bold;margin-top:8px;'>CENTRO HISTÓRICO</div>": L.layerGroup([]),
-      [nombreConSimbologia('Control de acceso','#cc0825')]: capaCAMACEN,
-      [nombreConSimbologia('Itinerarios de acceso al Centro Histórico','#ff7f00')]: L.layerGroup(itinerarios),
+  // 👉 PRIMERO añadimos ZBE como capa independiente
+    overlayMapsOrdered[
+       nombreConSimbologia('Zona de Bajas Emisiones (ZBE)','#0000ff')
+        ] = capaZBE;
 
-      // --- MOVILIDAD ---
-      "<div style='font-weight:bold;margin-top:8px;'>MOVILIDAD</div>": L.layerGroup([]),
-      [nombreConSimbologia('Calles 30','#8a6c26')]: capaCALLESLIM,
-      [nombreConSimbologia('Carril bici','#ee1717')]: capaCARRILBICI,
-      [nombreConSimbologia('Carril ciclable','#7f3e7f')]: capaCARRICICLA,
-      [nombreConSimbologia('Carril bus','#6673E5')]: capaCARRILBUS,
-      [nombreConSimbologia('Medidas de calmado','#8a6c26')]: capaMEDICAL,
+  // 👉 DESPUÉS añadimos el resto de grupos
+    grupos.forEach(g=>{
+       g.capas.forEach(c=> overlayMapsOrdered[c.nombre] = c.capa);
+     });
 
-      // --- RESERVAS ---
-      "<div style='font-weight:bold;margin-top:8px;'>RESERVAS</div>": L.layerGroup([]),
-      [nombreConSimbologia('SARE','#335ca2')]: capaSARE,
-      [nombreConSimbologia('Reserva de moto','#7f3e7f')]: capaRESERMOTO,
-
-      // --- LÍMITES ---
-      "<div style='font-weight:bold;margin-top:8px;'>LÍMITES</div>": L.layerGroup([]),
-      [nombreConSimbologia('Barrios','#555555')]: capaBARRIOS,
-      [nombreConSimbologia('Distritos','#555555')]: capaDISTRITOS,
-      [nombreConSimbologia('Término municipal de Málaga','#c25e6d')]: capaTMMALA
-    };
-
-    var controlCapas = L.control.layers(null, overlayMaps, {
+  // Crear control de capas
+    var controlCapas = L.control.layers(null, overlayMapsOrdered, {
       collapsed:false,
       position:'topright'
-    }).addTo(map);
+     }).addTo(map);
 
-    // Título principal
-    var titulo = document.createElement("div");
-    titulo.innerHTML = "<strong>LEYENDA</strong>";
-    titulo.style.padding = "6px";
-    titulo.style.textAlign = "center";
-    titulo.style.borderBottom = "1px solid #ccc";
-    controlCapas.getContainer().insertBefore(
-      titulo,
-      controlCapas.getContainer().firstChild
+  // Insertar títulos de subgrupo después de renderizado
+    setTimeout(()=>{
+      var container = controlCapas.getContainer();
+      var overlaysList = container.querySelector('.leaflet-control-layers-overlays');
+      if(!overlaysList) return;
+
+  // 👉 1️⃣ Añadir título general "CAPAS"
+      var tituloGeneral = document.createElement("div");
+        tituloGeneral.innerHTML = "CAPAS";
+        tituloGeneral.style.fontWeight = "bold";
+        tituloGeneral.style.fontSize = "14px";
+        tituloGeneral.style.marginBottom = "8px";
+        tituloGeneral.style.borderBottom = "2px solid #ccc";
+        tituloGeneral.style.paddingBottom = "4px";
+
+  overlaysList.insertBefore(tituloGeneral, overlaysList.firstChild);
+
+  // 👉 2️⃣ Añadir títulos de subgrupos
+  grupos.forEach(g=>{
+    var div = document.createElement("div");
+    div.style.fontWeight = "bold";
+    div.style.marginTop = "8px";
+    div.style.marginBottom = "4px";
+    div.innerHTML = g.titulo;
+
+    var firstLayerLabel = Array.from(overlaysList.querySelectorAll('label')).find(label=>
+      g.capas.some(c=>label.innerHTML.includes(c.nombre))
     );
+
+    if(firstLayerLabel) overlaysList.insertBefore(div, firstLayerLabel);
   });
 
+},0);   
+
+});
 </script>
 </body>
 </html>
+
+
 
 
 
