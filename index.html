@@ -11,6 +11,7 @@
   <!-- Plugin Geocoder para buscar direcciones -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
   <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
+  <script src="https://unpkg.com/@turf/turf@6/turf.min.js"></script>
 
   <style>
     #map { height: 100vh; }
@@ -26,6 +27,7 @@
 
   // Crear panes (jerarquía)
   
+  map.getPane('markerPane').style.zIndex = 1000;
   [
     'paneZBE','paneZEPCEN','paneZEPCAC','paneZEPSOH',
     'paneSARE','paneTMMALA','paneCAMACEN',
@@ -72,7 +74,8 @@
   ).addTo(map);
 
   // Geocoder
-  L.Control.geocoder({ defaultMarkGeocode: true }).addTo(map);
+  var geocoder = L.Control.geocoder({defaultMarkGeocode:false}).addTo(map);
+  var marcadorBusqueda;
 
   // Eventos generales
  
@@ -163,6 +166,64 @@
     var capaDISTRITOS=L.geoJSON(distrimun,{pane:'paneDISTRITOS',style:{color:'#555555',weight:2,fillOpacity:0.1},onEachFeature:(f,l)=>aplicarEventos(l,f.properties?.NOMBRE)});
     var capaBARRIOS=L.geoJSON(barrios,{pane:'paneBARRIOS',style:{color:'#555555',weight:1,fillOpacity:0.1},onEachFeature:(f,l)=>aplicarEventos(l,f.properties?.NOMBARRIO)});
     var capaZBE=L.geoJSON(zbe,{pane:'paneZBE',style:{color:'#0000ff',weight:2,fillOpacity:0.3},onEachFeature:(f,l)=>aplicarEventos(l,f.properties?.NOMBRE||'Zona de Bajas Emisiones (ZBE)')}).addTo(map);
+  
+    // Evento de búsqueda de direcciones
+  geocoder.on('markgeocode', function(e) {
+
+  var bbox = e.geocode.bbox;
+  var bounds = L.latLngBounds(bbox);
+
+  map.fitBounds(bounds);
+
+  if (map.getZoom() > 17) {
+    map.setZoom(17);
+  }
+
+  if (marcadorBusqueda) {
+    map.removeLayer(marcadorBusqueda);
+  }
+
+  marcadorBusqueda = L.marker(e.geocode.center).addTo(map);
+
+  // ---- Comprobar si está dentro de la ZBE ----
+  var punto = turf.point([e.geocode.center.lng, e.geocode.center.lat]);
+  var dentroZBE = false;
+
+  capaZBE.eachLayer(function(layer){
+    if (dentroZBE) return; // optimización
+    var poligono = layer.toGeoJSON();
+    if (turf.booleanPointInPolygon(punto, poligono)) {
+      dentroZBE = true;
+    }
+  });
+
+  // ---- Comprobar barrio y distrito ----
+  var barrio = 'Desconocido';
+  var distrito = 'Desconocido';
+
+  capaBARRIOS.eachLayer(function(layer){
+    if (barrio !== 'Desconocido') return;
+    if (turf.booleanPointInPolygon(punto, layer.toGeoJSON())) {
+      barrio = layer.feature.properties?.NOMBARRIO || 'Desconocido';
+    }
+  });
+
+  capaDISTRITOS.eachLayer(function(layer){
+    if (distrito !== 'Desconocido') return;
+    if (turf.booleanPointInPolygon(punto, layer.toGeoJSON())) {
+      distrito = layer.feature.properties?.NOMBRE || 'Desconocido';
+    }
+  });
+
+  // ---- Crear popup completo ----
+  var popupContenido = `<b>Dirección buscada</b><br>
+Barrio: ${barrio}<br>
+Distrito: ${distrito}<br>
+ZBE: ${dentroZBE ? 'Dentro' : 'Fuera'}`;
+
+  marcadorBusqueda.bindPopup(popupContenido).openPopup();
+});
+
     var capaZEPCEN=L.geoJSON(zepcen,{pane:'paneZEPCEN',style:{color:'#dc3b2c',weight:2,fillOpacity:0.3},onEachFeature:(f,l)=>aplicarEventos(l,f.properties?.NOMBRE||'Zona de Especial Protección Centro')}).addTo(map);
     var capaZEPCAC=L.geoJSON(zepcac,{pane:'paneZEPCAC',style:{color:'#811c45',weight:2,fillOpacity:0.3},onEachFeature:(f,l)=>aplicarEventos(l,f.properties?.NOMBRE||'Zona de Especial Protección CAC')}).addTo(map);
     var capaZEPSOH=L.geoJSON(zepsoh,{pane:'paneZEPSOH',style:{color:'#dd4f88',weight:2,fillOpacity:0.3},onEachFeature:(f,l)=>aplicarEventos(l,f.properties?.NOMBRE||'Zona de Especial Protección SOHO')}).addTo(map);
@@ -181,20 +242,20 @@
   function crearItinerario(data,color,nombre,urlFoto,descripcion=''){
       return L.geoJSON(data,{
         pane:'paneITINERARIOS',
-        style:{color:color,weight:2},
+        style:{color:color,weight:3},
         onEachFeature:(f,l)=>aplicarEventos(l,nombre,urlFoto,descripcion)
       }).addTo(map);
     }
 
     var itinerarios=[
-      crearItinerario(it1,'#ff7f00','Itinerario 1','img/Itinerario_1.jpg', 'Guillén Sotelo, travesía Pintor Nogales, plaza de la Aduana, Císter, San Agustín, Duque de la Victoria, plaza del Siglo, Molina Lario, plaza del Obispo y Molina Lario'),
-      crearItinerario(it2,'#ff7f00','Itinerario 2','img/Itinerario_2.jpg', 'Martínez, Sancha de Lara, Molina Lario'),
-      crearItinerario(it3,'#ff7f00','Itinerario 3','img/Itinerario_3.jpg', 'Comedias, Santa Lucía, plaza Jesús de la Pasión, Santa Lucía, Comedias, Nosquera hacia plaza de San Francisco o hacia calle Carretería'),
-      crearItinerario(it4,'#ff7f00','Itinerario 4','img/Itinerario_4.jpg', 'Méndez Núñez, Casapalma, Cárcer hacia Álamos o Cárcer hacia Madre de Dios'),
-      crearItinerario(it5,'#ff7f00','Itinerario 5','img/Itinerario_5.jpg', 'Cisneros, Especería, y viceversa para abandonarlo'),
-      crearItinerario(it6,'#ff7f00','Itinerario 6','img/Itinerario_6.jpg', 'Por Comandante Benítez hacia Navalón y Alemania, y salida hacia Linaje. Desde el Puente de la Misericordia hacia Comandante Benítez, Alemania, y salida desde Alemania hacia Linaje'),
-      crearItinerario(it7,'#ff7f00','Itinerario 7','img/Itinerario_7.jpeg', 'A este itinerario se accederá desde pasillo Santa Isabel o calle Postigo de Arance hacia calle Carretería y se abandonará por plaza San Francisco o calle Carretería esquina calle Ollerías y también se accederá por calle Álamos esquina calle Puerta Buenaventura y se abandonará por calle Cárcer dirección calle Madre de Dios o por calle Álamos esquina plaza de la Merced'),
-      crearItinerario(it8,'#ff7f00','Itinerario 8','img/Itinerario_8.jpeg', 'Sebastián Souvirón, Olozaga, Sagasta')
+      crearItinerario(it1,'#62cd58','Itinerario 1','img/Itinerario_1.jpg', 'Guillén Sotelo, travesía Pintor Nogales, plaza de la Aduana, Císter, San Agustín, Duque de la Victoria, plaza del Siglo, Molina Lario, plaza del Obispo y Molina Lario'),
+      crearItinerario(it2,'#62cd58','Itinerario 2','img/Itinerario_2.jpg', 'Martínez, Sancha de Lara, Molina Lario'),
+      crearItinerario(it3,'#62cd58','Itinerario 3','img/Itinerario_3.jpg', 'Comedias, Santa Lucía, plaza Jesús de la Pasión, Santa Lucía, Comedias, Nosquera hacia plaza de San Francisco o hacia calle Carretería'),
+      crearItinerario(it4,'#62cd58','Itinerario 4','img/Itinerario_4.jpg', 'Méndez Núñez, Casapalma, Cárcer hacia Álamos o Cárcer hacia Madre de Dios'),
+      crearItinerario(it5,'#62cd58','Itinerario 5','img/Itinerario_5.jpg', 'Cisneros, Especería, y viceversa para abandonarlo'),
+      crearItinerario(it6,'#62cd58','Itinerario 6','img/Itinerario_6.jpg', 'Por Comandante Benítez hacia Navalón y Alemania, y salida hacia Linaje. Desde el Puente de la Misericordia hacia Comandante Benítez, Alemania, y salida desde Alemania hacia Linaje'),
+      crearItinerario(it7,'#62cd58','Itinerario 7','img/Itinerario_7.jpeg', 'A este itinerario se accederá desde pasillo Santa Isabel o calle Postigo de Arance hacia calle Carretería y se abandonará por plaza San Francisco o calle Carretería esquina calle Ollerías y también se accederá por calle Álamos esquina calle Puerta Buenaventura y se abandonará por calle Cárcer dirección calle Madre de Dios o por calle Álamos esquina plaza de la Merced'),
+      crearItinerario(it8,'#62cd58','Itinerario 8','img/Itinerario_8.jpeg', 'Sebastián Souvirón, Olozaga, Sagasta')
     ];
 
 
@@ -207,7 +268,7 @@ const grupos=[
   ]},
   {titulo:'CENTRO HISTÓRICO', capas:[
     {nombre:nombreConPunto('Control de acceso','#cc0825'), capa:capaCAMACEN},
-    {nombre:nombreConLinea('Itinerarios','#ff7f00'), capa:L.layerGroup(itinerarios)}
+    {nombre:nombreConLinea('Itinerarios','#62cd58'), capa:L.layerGroup(itinerarios)}
   ]},
   {titulo:'MOVILIDAD', capas:[
     {nombre:nombreConLinea('Calles 30','#8a6c26'), capa:capaCALLESLIM},
@@ -287,6 +348,8 @@ const grupos=[
 </script>
 </body>
 </html>
+
+
 
 
 
