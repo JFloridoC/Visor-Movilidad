@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="utf-8" />
-  <title>Visor Leaflet Málaga con GeoJSON</title>
+  <title>Visor Movilidad Málaga</title>
 
   <!-- Leaflet CSS y JS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -31,7 +31,7 @@
   [
     'paneZBE','paneZEPCEN','paneZEPCAC','paneZEPSOH',
     'paneSARE','paneTMMALA','paneCAMACEN',
-    'paneITINERARIOS','paneBARRIOS','paneDISTRITOS', 'paneCALLESLIM', 'paneMEDICAL', 'paneCARRILBUS', 'paneCARRILBICI', 'paneCARRICICLA', 'paneRESERMOTO', 'paneCARGADESC', 'panePMR', 'paneTAXI'
+    'paneITINERARIOS','paneBARRIOS','paneDISTRITOS', 'paneCALLESLIM', 'paneMEDICAL', 'paneCARRILBUS', 'paneCARRILBICI', 'paneCARRICICLA', 'paneRESERMOTO', 'paneCARGADESC', 'panePMR', 'paneTAXI', 'panePUNTMEDIDA', 'paneAPARCADISUA',
   ].forEach(p => map.createPane(p));
 
   // Jerarquía
@@ -53,6 +53,8 @@
   map.getPane('paneCARGADESC').style.zIndex = 600;
   map.getPane('panePMR').style.zIndex = 600;
   map.getPane('paneTAXI').style.zIndex = 600;
+  map.getPane('panePUNTMEDIDA').style.zIndex = 600;
+  map.getPane('paneAPARCADISUA').style.zIndex = 600;
   map.getPane('paneITINERARIOS').style.zIndex = 650;
 
   // Capas base
@@ -87,7 +89,7 @@
     };
 
     layer.on('mouseover',()=>{
-      layer.setStyle({weight:5});
+      layer.setStyle({weight: layer.options.weight + 2});
       layer.bringToFront();
     });
 
@@ -157,8 +159,11 @@
     fetch('cargadesc.geojson').then(r=>r.json()),
     fetch('pmr.geojson').then(r=>r.json()),
     fetch('taxi.geojson').then(r=>r.json()),
+    fetch('puntmedida.geojson').then(r=>r.json()),
+    fetch('aparcadisua.geojson').then(r=>r.json()),
 
-  ]).then(([zbe,zepcen,zepcac,zepsoh,sare,tmmala,camacen,barrios,distrimun,it1,it2,it3,it4,it5,it6,it7,it8, calleslim, medical, carrilbus, carrilbici, carricicla, resermoto, cargadesc, pmr, taxi])=>{
+
+  ]).then(([zbe,zepcen,zepcac,zepsoh,sare,tmmala,camacen,barrios,distrimun,it1,it2,it3,it4,it5,it6,it7,it8, calleslim, medical, carrilbus, carrilbici, carricicla, resermoto, cargadesc, pmr, taxi, puntmedida, aparcadisua])=>{
 
     // Capas principales
 
@@ -238,7 +243,9 @@ ZBE: ${dentroZBE ? 'Dentro' : 'Fuera'}`;
     var capaCARGADESC=L.geoJSON(cargadesc,{pane:'paneCARGADESC',style:{color:'#f5b62d',weight:5,fillOpacity:1},onEachFeature:(f,l)=>aplicarEventos(l,"ID: "+f.properties.ID)});
     var capaPMR=L.geoJSON(pmr,{pane:'panePMR',style:{color:'#2f9ed5',weight:5,fillOpacity:1},onEachFeature:(f,l)=>aplicarEventos(l,"ID: "+f.properties.ID)});
     var capaTAXI=L.geoJSON(taxi,{pane:'paneTAXI',style:{color:'#d52f95',weight:5,fillOpacity:1},onEachFeature:(f,l)=>aplicarEventos(l,"ID: "+f.properties.ID)});
-    
+    var capaPUNTMEDIDA = L.geoJSON(puntmedida, {pane: 'panePUNTMEDIDA',pointToLayer: function(feature, latlng) {return L.circleMarker(latlng, {radius: 6,color: '#8a6c26',fillOpacity: 1,weight: 2})},onEachFeature: function(feature, layer) {var nombre = feature.properties?.Name || 'Punto de Medida';aplicarEventos(layer, nombre);}});
+    var capaAPARCADISUA=L.geoJSON(aparcadisua,{pane:'paneAPARCADISUA',style:{color:'#dc3b2c',weight:2,fillOpacity:1},onEachFeature:(f,l)=>aplicarEventos(l,"Aparcamiento: "+f.properties?.Nombre+"<br>Plazas: "+f.properties?.Plazas)});
+
   function crearItinerario(data,color,nombre,urlFoto,descripcion=''){
       return L.geoJSON(data,{
         pane:'paneITINERARIOS',
@@ -275,7 +282,9 @@ const grupos=[
     {nombre:nombreConLinea('Carril bici','#ee1717'), capa:capaCARRILBICI},
     {nombre:nombreConLinea('Carril ciclable','#348e5a'), capa:capaCARRICICLA},
     {nombre:nombreConLinea('Carril bus','#6673E5'), capa:capaCARRILBUS},
-    {nombre:nombreConPunto('Medidas de calmado','#8a6c26'), capa:capaMEDICAL}
+    {nombre:`<span style="display:inline-flex;align-items:center;"><img src="https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png"style="width:14px;height:22px;margin-right:6px;">Medidas de calmado</span>`,capa:capaMEDICAL},
+    {nombre:nombreConPunto('Puntos de Medida','#8a6c26'), capa:capaPUNTMEDIDA},
+    {nombre:nombreConSimbologia('Aparcamiento disuasorio','#dc3b2c'), capa:capaAPARCADISUA}
   ]},
   {titulo:'RESERVAS', capas:[
     {nombre:nombreConLinea('SARE','#335ca2'), capa:capaSARE},
@@ -348,6 +357,8 @@ const grupos=[
 </script>
 </body>
 </html>
+
+
 
 
 
